@@ -18,7 +18,7 @@ class ContinuousMarkov_lib:
             self.q[i][i] = np.sum(self.q[i]) * (-1)
         return self.q
 
-    def getStationary(self):
+    def getStationary_solve(self):#numpy.solveを使う場合
         #定常分布を求める
         q1 = self.q.copy()
         #(3)最終列に1を代入
@@ -27,4 +27,16 @@ class ContinuousMarkov_lib:
         q1[:,-1] = 1 #最終列を1にする
         #(4)連立方程式を解く πP=0 => P^tπ=0
         self.pi = solve(q1.T, right)
+        return self.pi
+    
+    def getStationary_inv(self):#逆行列を使う場合(Durret P165参照)
+        #定常分布を求める
+        q1 = self.q.copy()
+        #(3)最終列に1を代入
+        right = [0 for i in range(len(self.q))]
+        right[-1] = 1 #最後の要素のみ1にする
+        q1[:,-1] = 1 #最終列を1にする
+        #(4)逆行列を使って定常分布を算出
+        inv_q1 = np.linalg.pinv(q1)
+        self.pi = np.dot(right, inv_q1)
         return self.pi
